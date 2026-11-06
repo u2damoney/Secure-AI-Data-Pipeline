@@ -1,0 +1,64 @@
+# Architecture – Secure AI Data Pipeline
+
+## Overview
+This document describes the architecture of a secure data pipeline that protects sensitive information as it moves into and out of an AI/RAG system. The design prioritizes encryption, key management, and least-privilege access control.
+
+## High-Level Architecture
+
+**Main Components:**
+
+- **Ingestion Layer**: Receives documents and metadata
+- **Classification & Encryption Layer**: Applies data classification and encrypts content
+- **Secure Storage (Knowledge Base)**: Stores encrypted documents and embeddings
+- **Retrieval / AI Layer**: RAG component or LLM that requests data under controlled identity
+- **Key Management**: Customer-managed encryption keys (CMEK)
+- **Access Control Plane**: Identity and policy enforcement (human + non-human identities)
+- **Observability**: Logging and monitoring of data access
+
+## Component Descriptions
+
+### 1. Ingestion
+- Accepts documents from approved sources
+- Attaches initial metadata (source, owner, suggested classification)
+- Hands documents to the classification and encryption stage
+
+### 2. Classification & Encryption
+- Documents are labeled according to a simple classification scheme (Internal, Confidential, Restricted)
+- Content is encrypted using a customer-managed key before it is written to storage
+- Encryption keys never leave the key management service
+
+### 3. Secure Knowledge Base
+- Stores encrypted documents and their vector embeddings
+- Access is granted only to specifically authorized identities
+- Separate encryption context can be used for different classification levels if needed
+
+### 4. Retrieval / AI Component
+- The AI/RAG service runs under a dedicated non-human identity
+- It can only decrypt and read data it is explicitly allowed to access
+- Requests for data are logged with identity and classification context
+
+### 5. Key Management
+- Uses cloud KMS (or equivalent) with customer-managed keys
+- Key usage is restricted by IAM policy
+- Key rotation and access auditing are enabled
+
+### 6. Access Control
+- Human users and service identities have separate, least-privilege roles
+- No broad “reader” roles on the knowledge base
+- Policies enforce that only approved identities can trigger decryption
+
+## Trust Boundaries
+
+1. External source → Ingestion
+2. Ingestion → Classification & Encryption
+3. Encryption service → Key Management
+4. Knowledge Base → Retrieval / AI Component
+5. AI Component → External LLM (if used)
+6. All components → Logging / Monitoring
+
+## Design Principles
+- Encrypt early, decrypt late
+- Least privilege for both humans and non-human identities
+- Clear separation between data access and key access
+- Auditability of all sensitive data access
+- Minimize data sent outside the controlled environment
