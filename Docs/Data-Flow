@@ -1,0 +1,51 @@
+# Data Flow – Secure AI Data Pipeline
+
+## Purpose
+This document describes how data moves through the system and where protection controls are applied.
+
+## Primary Data Flows
+
+### Flow 1: Document Ingestion (Data In)
+1. Document arrives at the ingestion endpoint.
+2. Metadata is attached (source, owner, timestamp).
+3. Document is classified (Internal / Confidential / Restricted).
+4. Document is encrypted using a customer-managed key.
+5. Encrypted document + metadata is written to the knowledge base.
+6. Access policy is applied so only authorized identities can later read it.
+
+**Controls applied:** Classification, encryption at rest, access policy binding, audit log entry.
+
+### Flow 2: Retrieval by AI Component (Data Out to AI)
+1. AI/RAG service requests data using its dedicated service identity.
+2. Access control checks whether that identity is allowed to read the requested classification level.
+3. If allowed, the service is granted the ability to decrypt the content (via KMS).
+4. Decrypted content is used within the AI component for retrieval / context building.
+5. The access event is logged (identity, document, classification, timestamp).
+
+**Controls applied:** Least-privilege identity, decryption authorization, audit logging.
+
+### Flow 3: Data Sent to External LLM (if applicable)
+1. AI component prepares a prompt that may include retrieved context.
+2. Sensitive fields are reviewed / redacted according to policy where possible.
+3. Prompt is sent over TLS to the LLM provider.
+4. Response is received and handled according to classification rules.
+
+**Controls applied:** TLS, data minimization / redaction, logging of egress.
+
+### Flow 4: Logging & Monitoring
+- All significant data access and decryption events are sent to a central logging system.
+- Logs themselves are protected from containing raw sensitive content.
+
+## Data States
+| State              | Protection                     |
+|--------------------|--------------------------------|
+| In transit         | TLS 1.2+                       |
+| At rest            | Encrypted with CMEK            |
+| In AI memory       | Controlled retention + access  |
+| In logs            | Redacted / minimized           |
+
+## Key Risk Points in the Data Flow
+- Point where data is decrypted for the AI component
+- Point where data may leave the environment toward an external LLM
+- Overly broad access policies on the knowledge base
+- Weak control over encryption keys
