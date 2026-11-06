@@ -37,7 +37,7 @@ Data used by LLMs and RAG systems is often protected weakly. Common issues inclu
 See [docs/threat-model.md]
 
 ## Documentation
-- [Architecture](Architecture.md)
+- [Architecture](docs/Architecture.md)
 - [Data Flow]
 - [Encryption Design]
 - [Access Control]
