@@ -40,7 +40,7 @@ See [Threat-Model](Docs/Threat-Model)
 - [Architecture](Docs/Architecture)
 - [Data Flow](Docs/Data-Flow)
 - [Encryption Design](Docs/Encryption-Design)
-- [Access Control]
+- [Access Control](Docs/Access-Control)
 
 ## Demo
 Optional simple example showing encrypted ingestion and controlled retrieval.
