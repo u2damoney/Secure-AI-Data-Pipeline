@@ -1,0 +1,58 @@
+# Encryption Design – Secure AI Data Pipeline
+
+## Purpose
+This document describes how encryption is applied to protect data as it moves into and out of the AI/RAG system.
+
+## Encryption Objectives
+- Protect sensitive documents at rest in the knowledge base
+- Protect data in transit between all components
+- Maintain strong control over encryption keys
+- Ensure only authorized identities can trigger decryption
+
+## Encryption at Rest
+
+### Approach
+- All documents and embeddings stored in the knowledge base are encrypted using Customer-Managed Encryption Keys (CMEK).
+- Encryption occurs before data is written to storage.
+- The AI/RAG service does not store plaintext data persistently.
+
+### Key Management
+- Keys are managed in Cloud KMS (or equivalent).
+- Keys are not exportable.
+- Access to use the keys is granted only to specific service identities through IAM.
+- Key administrators are separated from data access roles (separation of duties).
+- Key rotation is enabled according to organizational policy.
+
+### Recommended Key Strategy
+| Data Type              | Key Type       | Notes                              |
+|------------------------|----------------|------------------------------------|
+| Knowledge base content | CMEK           | Primary data protection            |
+| Embeddings             | Same or related CMEK | Can use same key for simplicity |
+| Temporary processing   | Application-level or CMEK | Minimize plaintext lifetime     |
+
+## Encryption in Transit
+- All connections use TLS 1.2 or higher.
+- This includes:
+  - Ingestion → Encryption service
+  - Encryption service ↔ KMS
+  - AI service ↔ Knowledge base
+  - AI service ↔ LLM provider
+- Private Google Access / private networking is preferred where possible.
+
+## Decryption Controls
+- Decryption is only possible when an authorized identity makes a request through the proper access path.
+- The AI service identity must have both:
+  1. Permission to read the encrypted object
+  2. Permission to use the relevant KMS key
+- Decryption events are logged.
+
+## Design Decisions
+- Encrypt early (at ingestion) and decrypt late (only when needed by the AI component).
+- Avoid long-term plaintext storage.
+- Prefer customer-managed keys over default cloud provider keys for better control and auditability.
+- Keep key access tightly scoped.
+
+## Residual Risks
+- Compromise of highly privileged KMS administrators
+- Misconfigured IAM allowing broader key usage than intended
+- Data decrypted into memory by the AI service could still be exposed through application-level vulnerabilities
