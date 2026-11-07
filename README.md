@@ -34,7 +34,7 @@ Data used by LLMs and RAG systems is often protected weakly. Common issues inclu
 - **Data Minimization**: Controls on what leaves the trust boundary to the LLM
 
 ## Threat Model
-See [docs/threat-model.md]
+See [threat-model.md]
 
 ## Documentation
 - [Architecture](Docs/Architecture)
