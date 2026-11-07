@@ -25,7 +25,7 @@ Data used by LLMs and RAG systems is often protected weakly. Common issues inclu
 [Link to architecture diagram]
 
 ## Data Flow
-[Data-Flow Diagram](Diagrams/Data_Flow_Diagram)
+[Data-Flow Diagram](Diagrams/Data_Flow_Diagram.svg)
 
 ## Key Controls
 - **Encryption**: At rest (CMEK) + in transit (TLS)
