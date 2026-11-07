@@ -37,10 +37,10 @@ Data used by LLMs and RAG systems is often protected weakly. Common issues inclu
 See [Threat-Model](Docs/Threat-Model)
 
 ## Documentation
-- [Architecture](Docs/Architecture.md)
-- [Data Flow](Docs/Data-Flow.md)
-- [Encryption Design](Docs/Encryption-Design.md)
-- [Access Control](Docs/Access-Control.md)
+- [Architecture](Docs/Architecture)
+- [Data Flow](Docs/Data-Flow)
+- [Encryption Design](Docs/Encryption-Design)
+- [Access Control](Docs/Access-Control)
 
 ## Demo
 Optional simple example showing encrypted ingestion and controlled retrieval.
