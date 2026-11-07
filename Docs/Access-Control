@@ -1,0 +1,63 @@
+# Access Control – Secure AI Data Pipeline
+
+## Purpose
+This document defines how access to data and encryption keys is controlled for both human users and non-human identities (services).
+
+## Core Principles
+- Least privilege
+- Separation of duties (especially between data access and key administration)
+- Identity-based access (no shared credentials)
+- Clear distinction between human and non-human identities
+- Auditability of access
+
+## Identity Types
+
+| Identity Type          | Purpose                              | Example                     |
+|------------------------|--------------------------------------|-----------------------------|
+| Human users            | Administration, review, support      | Security engineers, data owners |
+| Ingestion service      | Write new documents                  | Ingestion service account   |
+| AI / RAG service       | Read and decrypt allowed data        | RAG service account         |
+| Key administrators     | Manage KMS keys                      | Limited security team role  |
+
+## Access Control Model
+
+### Knowledge Base Access
+- Default deny.
+- Write access limited to the ingestion service identity.
+- Read / decrypt access limited to the AI/RAG service identity (and approved human roles if needed).
+- Access can be further restricted by data classification when supported.
+
+### Key Access (KMS)
+- Only specific service identities are allowed to use (encrypt/decrypt) the CMEK.
+- Key administration rights are held by a very small set of roles and are separate from day-to-day data access.
+- Key usage is logged.
+
+### Human Access
+- Human users do not receive direct database credentials or broad read access by default.
+- Administrative access is granted temporarily and audited when required.
+
+## Example High-Level Roles
+
+| Role                        | Can Write Data | Can Read/Decrypt Data | Can Manage Keys |
+|----------------------------|----------------|-----------------------|-----------------|
+| Ingestion Service          | Yes            | No                    | No              |
+| AI / RAG Service           | No             | Yes (limited)         | Use only        |
+| Security Administrator     | No             | Limited / Break-glass | Yes             |
+| Standard Human User        | No             | No                    | No              |
+
+## Policy Enforcement Points
+- IAM policies on the knowledge base
+- IAM policies on the KMS keys
+- Service identity configuration (Workload Identity / service accounts)
+- Application-level checks (where classification is enforced)
+
+## Logging & Review
+- All access to sensitive data and key usage is logged with identity context.
+- Access policies should be reviewed regularly.
+- Break-glass / emergency access procedures should be defined and monitored.
+
+## Residual Risks
+- Over-permissioned service accounts
+- Standing privileges that are never reviewed
+- Insider threats with legitimate elevated roles
+- Misconfiguration of IAM policies
