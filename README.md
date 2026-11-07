@@ -39,7 +39,7 @@ See [Threat-Model](Docs/Threat-Model)
 ## Documentation
 - [Architecture](Docs/Architecture)
 - [Data Flow](Docs/Data-Flow)
-- [Encryption Design]
+- [Encryption Design](Docs/Encryption-Design)
 - [Access Control]
 
 ## Demo
