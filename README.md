@@ -22,7 +22,7 @@ Data used by LLMs and RAG systems is often protected weakly. Common issues inclu
 - Threat model focused on data risks in an AI context
 
 ## Architecture
-[Link to architecture diagram]
+[Architecture Diagram](Diagrams/Architecture-High-Level.svg)
 
 ## Data Flow
 [Data-Flow Diagram](Diagrams/Data_Flow_Diagram.svg)
