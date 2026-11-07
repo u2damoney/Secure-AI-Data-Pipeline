@@ -38,7 +38,7 @@ See [Threat-Model](Docs/Threat-Model)
 
 ## Documentation
 - [Architecture](Docs/Architecture)
-- [Data Flow]
+- [Data Flow](Docs/Data-Flow)
 - [Encryption Design]
 - [Access Control]
 
