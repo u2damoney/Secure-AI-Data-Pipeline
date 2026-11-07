@@ -17,7 +17,7 @@ This system protects sensitive documents as they move into a knowledge base and 
 - Network-level DDoS protection
 
 ## 2. Architecture Summary
-See [architecture](architecture) and the [architecture diagram](Diagrams/Architecture-High-Level.svg).
+See Architecture Doc and the Architecture Diagram
 
 **Key Components**
 - Ingestion service
