@@ -1,0 +1,104 @@
+# Threat Model – Secure AI Data Pipeline
+
+## 1. System Overview
+This system protects sensitive documents as they move into a knowledge base and are later retrieved by an AI/RAG component. The primary focus is encryption, key management, and access control.
+
+**In Scope**
+- Data ingestion and classification
+- Encryption at rest and key management
+- Access control to the knowledge base
+- Controlled retrieval by the AI component
+- Basic protection of data sent to an external LLM
+
+**Out of Scope (for this version)**
+- Advanced prompt-injection defenses
+- Model security / adversarial ML
+- Full DLP implementation
+- Network-level DDoS protection
+
+## 2. Architecture Summary
+See [architecture.md](architecture.md) and the architecture diagram.
+
+**Key Components**
+- Ingestion service
+- Classification & encryption service
+- Cloud KMS (customer-managed keys)
+- Encrypted knowledge base
+- RAG / AI retrieval service
+- Access control (IAM + service identities)
+- Audit logging
+
+## 3. Assets
+| Asset                        | Sensitivity   | Notes                              |
+|-----------------------------|---------------|------------------------------------|
+| Source documents            | High          | May contain confidential data      |
+| Encryption keys (CMEK)      | Critical      | Protect all data at rest           |
+| Encrypted knowledge base    | High          | Primary data store                 |
+| AI service identity         | High          | Can request decryption             |
+| Retrieved context / prompts | High          | May leave the environment          |
+| Audit logs                  | Medium        | Needed for accountability          |
+
+## 4. Trust Boundaries
+1. External source → Ingestion
+2. Ingestion → Classification & Encryption
+3. Encryption service ↔ Key Management (KMS)
+4. Knowledge Base ↔ AI / RAG service
+5. AI service → External LLM provider
+6. All components → Audit logging
+
+## 5. Threat Analysis (STRIDE Focus on Data)
+
+### Spoofing
+- Threat: Attacker impersonates the AI service identity to gain data access.
+- Mitigation: Strong workload identity, no long-lived keys, least-privilege IAM.
+
+### Tampering
+- Threat: Modification of documents or encryption metadata.
+- Mitigation: Integrity controls, restricted write access, audit logging.
+
+### Repudiation
+- Threat: Data access cannot be attributed to a specific identity.
+- Mitigation: Identity-aware audit logs for all decryption and read events.
+
+### Information Disclosure
+- Threat: Unauthorized reading of sensitive documents or keys.
+- Impact: High
+- Mitigations:
+  - Encryption at rest with CMEK
+  - Least-privilege access to the knowledge base
+  - Separation between data access and key access
+  - TLS on all data paths
+
+### Denial of Service
+- Threat: Key or service unavailability prevents legitimate access.
+- Mitigation: High availability KMS configuration, monitoring, rate controls.
+
+### Elevation of Privilege
+- Threat: AI service or user gains broader data access than intended.
+- Mitigation: Tight IAM roles, classification-based access, regular access reviews.
+
+## 6. Data-Specific Risks
+- Overly broad access policies on the knowledge base
+- Decryption rights granted to too many identities
+- Sensitive data sent to external LLM without minimization
+- Weak key management (shared keys, poor rotation, excessive key administrators)
+
+## 7. Risk Prioritization
+| Risk                              | Likelihood | Impact | Priority | Key Control                     |
+|-----------------------------------|------------|--------|----------|---------------------------------|
+| Unauthorized access to knowledge base | Medium  | High   | Critical | Least-privilege IAM             |
+| Weak or shared encryption keys    | Low-Medium | Critical | Critical | CMEK + restricted key access   |
+| Data leakage via LLM prompts      | Medium     | High   | High     | Data minimization + monitoring  |
+| Missing audit trail for access    | Medium     | Medium | Medium   | Identity-aware logging          |
+
+## 8. Residual Risks
+- Compromise of the cloud KMS or highly privileged administrators
+- Sophisticated prompt injection that causes the AI component to exfiltrate data
+- Insider threat with legitimate elevated access
+- Zero-day issues in the underlying cloud services
+
+## 9. References
+- NIST Cybersecurity Framework
+- Cloud KMS best practices
+- Least privilege and zero-trust principles
+- Basic STRIDE application to data pipelines
